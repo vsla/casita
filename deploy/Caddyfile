@@ -1,0 +1,7 @@
+# VPS (Fase 2): Caddy cuida do HTTPS automaticamente.
+# Mesma origem para site, /api e /socket.io → cookies simples, sem CORS.
+# No .env da VPS: COOKIE_SECURE=true
+casa.exemplo.com {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3100
+}

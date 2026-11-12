@@ -1,0 +1,55 @@
+# docker compose --env-file .env -f deploy/docker-compose.prod.yml up -d --build --wait
+name: casita
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: homehub
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-homehub}
+      POSTGRES_DB: homehub
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U homehub"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: ..
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: ${CASITA_ENV_FILE:-../.env}
+    environment:
+      DATABASE_URL: postgres://homehub:${POSTGRES_PASSWORD:-homehub}@db:5432/homehub
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3100
+      SPOTIFY_REDIRECT_URI: ${SPOTIFY_REDIRECT_URI:-http://127.0.0.1:${CASITA_PORT:-3100}/api/integrations/spotify/callback}
+    ports:
+      - "${CASITA_BIND_IP:-0.0.0.0}:${CASITA_PORT:-3100}:3100"
+    volumes:
+      - uploads:/app/data/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3100/api/health').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  camera:
+    image: alexxit/go2rtc:1.9.14
+    profiles: [camera]
+    restart: unless-stopped
+    environment:
+      CAMERA_RTSP_URL: ${CAMERA_RTSP_URL:-}
+      CAMERA_STREAM: ${CAMERA_STREAM:-camera}
+    volumes:
+      - ./go2rtc.yaml:/config/go2rtc.yaml:ro
+
+volumes:
+  pgdata:
+  uploads:

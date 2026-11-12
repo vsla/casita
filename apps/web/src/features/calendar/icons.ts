@@ -1,0 +1,32 @@
+import {
+  Cake,
+  Dumbbell,
+  GraduationCap,
+  HeartPulse,
+  PawPrint,
+  Plane,
+  ShoppingCart,
+  Sun,
+  Trees,
+  Users,
+  Utensils,
+  Volleyball,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react';
+
+export const EVENT_ICONS: Record<string, LucideIcon> = {
+  dumbbell: Dumbbell,
+  volleyball: Volleyball,
+  cart: ShoppingCart,
+  utensils: Utensils,
+  trees: Trees,
+  sun: Sun,
+  users: Users,
+  cake: Cake,
+  paw: PawPrint,
+  health: HeartPulse,
+  school: GraduationCap,
+  plane: Plane,
+  repair: Wrench,
+};

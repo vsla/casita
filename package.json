@@ -1,0 +1,29 @@
+{
+  "name": "home-hub",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "camera:up": "docker compose --profile camera up -d camera",
+    "camera:logs": "docker compose logs -f camera",
+    "db:generate": "pnpm --filter api db:generate",
+    "db:migrate": "pnpm --filter api db:migrate",
+    "db:seed": "pnpm --filter api db:seed",
+    "db:reset": "pnpm --filter api db:reset",
+    "dev": "concurrently -n api,web -c green,cyan \"pnpm --filter api dev\" \"pnpm --filter web dev\"",
+    "build": "pnpm --filter web build && pnpm --filter api build",
+    "start": "pnpm --filter api start",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

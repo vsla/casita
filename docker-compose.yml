@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: homehub
+      POSTGRES_PASSWORD: homehub
+      POSTGRES_DB: homehub
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U homehub"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Gateway da câmera (opcional): pnpm camera:up
+  camera:
+    image: alexxit/go2rtc:1.9.14
+    profiles: [camera]
+    restart: unless-stopped
+    environment:
+      CAMERA_RTSP_URL: ${CAMERA_RTSP_URL:-}
+      CAMERA_STREAM: ${CAMERA_STREAM:-camera}
+    volumes:
+      - ./deploy/go2rtc.yaml:/config/go2rtc.yaml:ro
+    ports:
+      # Só no próprio PC: o painel web do go2rtc mostra a URL RTSP com a senha
+      - "127.0.0.1:1984:1984"
+
+volumes:
+  pgdata:

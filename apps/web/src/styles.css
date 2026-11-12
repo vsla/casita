@@ -1,0 +1,298 @@
+@import 'tailwindcss';
+
+/* Scandinavian Light — linho, sálvia, azul-esverdeado e madeira clara */
+/*
+ * Pontos de quebra em px: em rem, navegadores com fonte padrão maior (ex.: o da TV) empurravam
+ * o layout do painel para telas cada vez mais largas. "xl" = layout web/painel: qualquer tela com
+ * 900 px ou mais de largura e 500 px de altura. Só celular (em pé ou deitado) fica com o mobile.
+ */
+@custom-variant xl (@media (min-width: 900px) and (min-height: 500px));
+@custom-variant max-xl (@media not all and (min-width: 900px) and (min-height: 500px));
+
+@theme {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-2xl: 1536px;
+  --font-sans: 'Nunito Variable', system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, serif;
+
+  --color-linen: #f4efe6;
+  --color-paper: #fbf8f2;
+  --color-paper-2: #f3eee4;
+  --color-line: #e8dfd0;
+  --color-ink: #3a3833;
+  --color-ink-soft: #5e5a52;
+  --color-muted: #948d81;
+
+  --color-sage: #6f9a85;
+  --color-sage-deep: #557a68;
+  --color-sage-soft: #dfe8df;
+  --color-sage-wash: #eef2ea;
+  --color-teal: #5fa8a0;
+  --color-teal-soft: #e1efec;
+
+  --color-clay: #d9925b;
+  --color-clay-soft: #f6e6d6;
+  --color-lilac: #a78bc9;
+  --color-leaf: #7bb36e;
+  --color-danger: #b4553a;
+  --color-danger-soft: #f6e0d8;
+
+  --radius-card: 1.25rem;
+  --shadow-card: 0 1px 2px rgb(90 70 40 / 0.04), 0 6px 18px -8px rgb(90 70 40 / 0.12);
+
+  --animate-in: enter 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-out: exit 180ms ease-in both;
+  --animate-fade-in: fade-in 220ms ease both;
+  --animate-fade-out: fade-out 180ms ease both;
+  --animate-sheet-in: sheet-in 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-sheet-out: sheet-out 200ms ease-in both;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@keyframes exit {
+  to {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes sheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* Tamanho base fixo: ignora a fonte padrão aumentada de TVs e o "font boosting" do Android */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+/* No painel, tudo (texto e espaçamentos em rem) acompanha o tamanho da tela: foi desenhado para
+   ~1450×960; em telas menores ou com zoom do navegador, encolhe junto em vez de cortar */
+@media (min-width: 900px) and (min-height: 500px) {
+  html {
+    font-size: clamp(10px, min(100vh / 60, 100vw / 90), 16px);
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-linen);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* Painel touch: nada de seleção acidental de texto (inputs continuam selecionáveis) */
+.kiosk :not(input, textarea) {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@layer components {
+  .card {
+    background: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+  .skeleton {
+    border-radius: 0.6rem;
+    background: linear-gradient(90deg, var(--color-paper-2) 25%, #ece5d8 50%, var(--color-paper-2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+  .press {
+    transition:
+      transform 140ms ease,
+      background-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease;
+  }
+  .press:active {
+    transform: scale(0.96);
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* ---------- Paisagem viva do cabeçalho ---------- */
+.lv-breathe,
+.lv-glow,
+.lv-tree,
+.lv-smoke,
+.lv-wing {
+  transform-box: fill-box;
+}
+.lv-breathe {
+  transform-origin: center;
+  animation: lv-breathe 7s ease-in-out infinite;
+}
+.lv-glow {
+  transform-origin: center;
+  animation: lv-glow 7s ease-in-out infinite;
+}
+.lv-cloud {
+  animation: lv-drift 80s linear infinite;
+}
+.lv-tree {
+  transform-origin: 50% 100%;
+  animation: lv-sway 5s ease-in-out infinite;
+}
+.lv-birds {
+  animation: lv-fly 40s linear infinite;
+}
+.lv-wing {
+  transform-origin: center;
+  animation: lv-flap 0.9s ease-in-out infinite;
+}
+.lv-smoke {
+  transform-origin: center;
+  animation: lv-smoke 4.8s ease-out infinite;
+  opacity: 0;
+}
+.lv-star {
+  animation: lv-twinkle 3.2s ease-in-out infinite;
+}
+.lv-rain {
+  animation: lv-rain 1.2s linear infinite;
+}
+.lv-window {
+  animation: lv-twinkle 6s ease-in-out infinite;
+}
+
+@keyframes lv-breathe {
+  50% {
+    transform: scale(1.06);
+  }
+}
+@keyframes lv-glow {
+  50% {
+    transform: scale(1.18);
+    opacity: 0.6;
+  }
+}
+@keyframes lv-drift {
+  from {
+    transform: translateX(-80px);
+  }
+  to {
+    transform: translateX(680px);
+  }
+}
+@keyframes lv-sway {
+  0%,
+  100% {
+    transform: rotate(-1.6deg);
+  }
+  50% {
+    transform: rotate(1.6deg);
+  }
+}
+@keyframes lv-fly {
+  0% {
+    transform: translate(120px, 40px);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  35% {
+    transform: translate(560px, 18px);
+    opacity: 1;
+  }
+  38%,
+  100% {
+    transform: translate(600px, 16px);
+    opacity: 0;
+  }
+}
+@keyframes lv-flap {
+  50% {
+    transform: scaleY(0.4);
+  }
+}
+@keyframes lv-smoke {
+  0% {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(10px, -22px) scale(1.8);
+    opacity: 0;
+  }
+}
+@keyframes lv-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes lv-rain {
+  from {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(-6px, 34px);
+    opacity: 0;
+  }
+}

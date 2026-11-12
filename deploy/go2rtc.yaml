@@ -1,0 +1,27 @@
+# Gateway local para câmeras RTSP. Entrega vídeo e quadros ao painel.
+# A URL vem do .env (CAMERA_RTSP_URL) para a senha não ficar no repositório.
+api:
+  listen: ':1984'
+
+# Iguais aos padrões do go2rtc, com três ajustes:
+#  - quadro-chave a cada ~1 s (-g 15; o padrão é 50, uns 3 s): quem abre o vídeo só espera o próximo,
+#    então a imagem aparece bem mais rápido;
+#  - relógio de parede como horário dos quadros e -fps_mode passthrough: quando a câmera cai e
+#    reconecta, o horário dos quadros dava um salto e o ffmpeg "preenchia" o buraco repetindo o
+#    último quadro por minutos (imagem parada, CPU a 500%, vídeo atrasado depois).
+ffmpeg:
+  rtsp: "-fflags nobuffer -flags low_delay -use_wallclock_as_timestamps 1 -timeout 5000000 -user_agent go2rtc/ffmpeg -rtsp_flags prefer_tcp -i {input}"
+  h264: "-c:v libx264 -g 15 -fps_mode passthrough -profile:v high -level:v 4.1 -preset:v superfast -tune:v zerolatency -pix_fmt:v yuv420p"
+
+streams:
+  # Original da câmera.
+  "${CAMERA_STREAM}_raw":
+    - ${CAMERA_RTSP_URL}
+  # Converte para H.264 e AAC para facilitar a reprodução no navegador.
+  "${CAMERA_STREAM}":
+    - ffmpeg:${CAMERA_STREAM}_raw#video=h264#width=1280#audio=aac
+
+# Mantém a câmera e a conversão sempre ligadas: o vídeo abre na hora (sem esperar o RTSP
+# conectar nem o ffmpeg achar um keyframe) e o go2rtc reconecta sozinho quando a câmera cai.
+preload:
+  "${CAMERA_STREAM}":
